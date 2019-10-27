@@ -12,7 +12,7 @@ This will add different levels of noise to the images downsampled by the specifi
 
 Run the following to denoise images with a DIP model (a convolutional encoder-decoder):
 
-    python dip.py --noisy_img data/denoise-4/House256/House256_s25.png --clean_img data/denoise-4/House256/House256.png --niter 500 --traj_iter 100
+    python dip.py --noisy_img data/denoise-4/House256/House256_s25.png --clean_img data/denoise-4/House256/House256.png
     
 Run the following to denoise images with a ReLUNet:
 
