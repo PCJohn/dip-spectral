@@ -50,13 +50,25 @@ def parse_args():
         '--output_dir', default='outputs', help='Folder to save outputs'
     )
     parser.add_argument(
-        '--traj_iter', default=10, help='Interval to sample trajectory'
-    )
-    parser.add_argument(
         '--noisy_img', required=True, help='Path to noisy image file'
     )
     parser.add_argument(
         '--clean_img', required=True, help='Path to clean image file'
+    )
+    parser.add_argument(
+        '--traj_iter', default=100, help='Interval to sample trajectory'
+    )
+    parser.add_argument(
+        '--hid_size', default=256, help='Number of units per hidden layer in the ReLUNet'
+    )
+    parser.add_argument(
+        '--depth', default=10, help='Number of hidden layers in the ReLUNet'
+    )
+    parser.add_argument(
+        '--niter', default=30000, help='Number of iterations'
+    )
+    parser.add_argument(
+        '--bz', default=2048, help='Batch size'
     )
     return parser.parse_args()
 
@@ -98,7 +110,6 @@ def train_net(x,y,w,h,c,H=200,d=2,niter=200000,lr=0.001,bz=256,traj_iter=1000):
         b = np.random.randint(0,x.shape[0],bz)
         y_ = net(x[b])
         loss = mse(y_,y[b])
-        #loss.backward(retain_graph=True)
         loss.backward()
         optim.step()
         if (itr%traj_iter == 0):
@@ -119,18 +130,15 @@ if __name__ == '__main__':
     img = utils.imread(args.noisy_img)
     x,y,w,h,c = gen_dataset(img)
     
-    #channel = [128]
-    bz = 2048
-    
-    # Generate 2 DIP trajectories
+    # Generate 2 denoising trajectories with ReLUNets
     traj_set = []
     for _ in range(2):
         T = train_net(x,y,w,h,c,
-            H=128,
-            d=5,
-            niter=30000,
-            bz=2048,
-            traj_iter=100)
+            H=args.hid_size, #256,
+            d=args.depth, #10,
+            niter=args.niter, #30000,
+            bz=args.bz, #2048,
+            traj_iter=args.traj_iter) #100)
         traj_set.append(T)
     T1,T2 = traj_set
 
