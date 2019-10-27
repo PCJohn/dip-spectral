@@ -164,7 +164,7 @@ if __name__ == '__main__':
     plt.savefig(os.path.join(output_dir,'final.png'))
     plt.close()
     plt.imshow(best_psnr_pred)
-    plt.title('Best PSNR: '+str(best_psnr)+', Best Iter: '+str(best_itr))
+    plt.title('Best PSNR: '+str(best_psnr)+', Best Iter: '+str(best_itr*args.traj_iter))
     plt.savefig(os.path.join(output_dir,'best_psnr.png'))
     plt.close()
 

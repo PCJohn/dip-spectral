@@ -91,7 +91,7 @@ def parse_args():
         '--niter', type=int, default=1000, help='Num iters'
     )
     parser.add_argument(
-        '--traj_iter', type=float, default=100, help='Traj. logging iter'
+        '--traj_iter', type=float, default=10, help='Traj. logging iter'
     )
     parser.add_argument(
         '--reg_noise_std', type=float, default=0, help='Var. of noise added to the input as a regularizer'
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     plt.savefig(os.path.join(output_dir,'final.png'))
     plt.close()
     plt.imshow(best_psnr_pred)
-    plt.title('Best PSNR: '+str(best_psnr)+', Best Iter: '+str(best_itr))
+    plt.title('Best PSNR: '+str(best_psnr)+', Best Iter: '+str(best_itr*args.traj_iter))
     plt.savefig(os.path.join(output_dir,'best_psnr.png'))
     plt.close()
     
