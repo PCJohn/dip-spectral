@@ -16,6 +16,6 @@ Run the following to denoise images with a DIP model (a convolutional encoder-de
     
 Run the following to denoise images with a ReLUNet:
 
-    python relunet.py --noisy_img data/denoise-4/House256/House256.png_s25.png --clean_img data/denoise-4/House256/House256.png
+    python relunet.py --noisy_img data/denoise-4/House256/House256_s25.png --clean_img data/denoise-4/House256/House256.png
     
 The denoising results, along with convergence of 2 trajectories will be saved in the outputs/ folder
