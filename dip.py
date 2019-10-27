@@ -64,13 +64,12 @@ def dip(noisy_img,
             rec = net(eta)
         rec = net(eta)
         loss = mse(rec,fixed_target)
-        #loss.backward(retain_graph=True)
         loss.backward()
         optim.step()
         if (itr%traj_iter == 0):
             out_np = rec[0, :, :, :].transpose(0,2).detach().cpu().data.numpy()
             T.append(out_np)
-            print('Iteration '+str(itr)+': '+str(loss.data),T[-1].shape)
+            print('Iteration '+str(itr)+': '+str(loss.data))
     return T
 
 
@@ -86,7 +85,7 @@ def parse_args():
         '--output_dir', default='outputs', help='Folder to save outputs'
     )
     parser.add_argument(
-        '--lr', type=float, default=0.0001, help='Learning rate'
+        '--lr', type=float, default=0.001, help='Learning rate'
     )
     parser.add_argument(
         '--niter', type=int, default=1000, help='Num iters'
@@ -98,10 +97,10 @@ def parse_args():
         '--reg_noise_std', type=float, default=0, help='Var. of noise added to the input as a regularizer'
     )
     parser.add_argument(
-        '--n_ch_down', type=int, default=128, help='Num channels for downsampling'
+        '--n_ch_down', type=int, default=256, help='Num channels for downsampling'
     )
     parser.add_argument(
-        '--n_ch_up', type=int, default=128, help='Num channels for upsampling'
+        '--n_ch_up', type=int, default=256, help='Num channels for upsampling'
     )
     parser.add_argument(
         '--skip_conn', type=int, default=4, help='Skip connection indices'
@@ -182,6 +181,5 @@ if __name__ == '__main__':
     plt.ylabel('SSE')
     plt.xlabel('Iterations')
     plt.savefig(os.path.join(output_dir,'sse_vs_itr.png'))
-    plt.show()
     
 

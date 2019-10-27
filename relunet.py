@@ -68,6 +68,9 @@ def parse_args():
         '--niter', default=30000, help='Number of iterations'
     )
     parser.add_argument(
+        '--lr', default=0.001, help='Learning rate'
+    )
+    parser.add_argument(
         '--bz', default=2048, help='Batch size'
     )
     return parser.parse_args()
@@ -134,11 +137,12 @@ if __name__ == '__main__':
     traj_set = []
     for _ in range(2):
         T = train_net(x,y,w,h,c,
-            H=args.hid_size, #256,
-            d=args.depth, #10,
-            niter=args.niter, #30000,
-            bz=args.bz, #2048,
-            traj_iter=args.traj_iter) #100)
+            H=args.hid_size,
+            d=args.depth,
+            niter=args.niter,
+            lr=args.lr,
+            bz=args.bz,
+            traj_iter=args.traj_iter)
         traj_set.append(T)
     T1,T2 = traj_set
 
