@@ -1,3 +1,7 @@
+"""
+Script to generate encoder-decoder models. Same as from the original DIP codebase: https://github.com/DmitryUlyanov/deep-image-prior/blob/master/models/skip.py, with a few additional lines for DIP-linear
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
