@@ -120,6 +120,18 @@ def add_module(self, module):
     
 torch.nn.Module.add = add_module
 
+class Flatten(nn.Module):
+    def forward(self, input):
+        return input.view(input.size(0), -1)
+
+class ReshapeToImg(nn.Module):
+    def __init__(self,shape):
+        super(ReshapeToImg, self).__init__()
+        self.shape = shape
+
+    def forward(self, input):
+        return input.view(*self.shape)
+
 class Concat(nn.Module):
     def __init__(self, dim, *args):
         super(Concat, self).__init__()
@@ -204,7 +216,9 @@ def act(act_fun = 'LeakyReLU'):
         return act_fun()
 
 
-def bn(num_features):
+def bn(num_features):#,use_fc=False):
+    #if use_fc:
+    #    return nn.BatchNorm1d(num_features)
     return nn.BatchNorm2d(num_features)
 
 

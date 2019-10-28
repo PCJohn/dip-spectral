@@ -30,10 +30,13 @@ def dip(noisy_img,
         skip_conn=4,
         depth=5,
         act_fun='LeakyReLU',
-        upsample='bilinear'):
+        upsample='bilinear',
+        linear=False):
     
     input_depth = num_ch
     output_depth = num_ch
+    if linear:
+        skip_conn = 0
 
     net = skip(input_depth, output_depth,
             num_channels_down = [n_ch_down]*depth,
@@ -41,6 +44,8 @@ def dip(noisy_img,
             num_channels_skip = [skip_conn]*depth, 
             upsample_mode=upsample,
             act_fun=act_fun,
+            use_fc=linear,
+            input_shape=noisy_img.shape
             )
 
     net.cuda()
@@ -114,6 +119,9 @@ def parse_args():
     parser.add_argument(
         '--upsample', default='bilinear', help='Upsampling method'
     )
+    parser.add_argument(
+        '--linear', default=False, action='store_true', help='Use DIP-Linear instead of standard convolutional DIP model'
+    )
     return parser.parse_args()
 
 
@@ -146,7 +154,8 @@ if __name__ == '__main__':
                 skip_conn=args.skip_conn,
                 depth=args.depth,
                 act_fun=args.act_fun,
-                upsample=args.upsample)
+                upsample=args.upsample,
+                linear=args.linear)
         traj_set.append(T)
     T1,T2 = traj_set
 

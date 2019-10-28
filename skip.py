@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from utils import *
+
 
 def skip(
         num_input_channels=2, num_output_channels=3, 
@@ -9,7 +11,7 @@ def skip(
         filter_size_down=3, filter_size_up=3, filter_skip_size=1,
         need_sigmoid=True, need_bias=True, 
         pad='zero', upsample_mode='nearest', downsample_mode='stride', act_fun='LeakyReLU', 
-        need1x1_up=True):
+        need1x1_up=True,use_bn=True,stride=2,use_fc=False,input_shape=()):
     """Assembles encoder-decoder with skip connections.
 
     Arguments:
@@ -43,6 +45,12 @@ def skip(
     model_tmp = model
 
     input_depth = num_input_channels
+    
+    if use_fc:
+        assert (len(input_shape) > 0)
+        input_size = np.prod(input_shape)
+        img_size = int(input_size)
+    
     for i in range(len(num_channels_down)):
 
         deeper = nn.Sequential()
@@ -52,22 +60,38 @@ def skip(
             model_tmp.add(Concat(1, skip, deeper))
         else:
             model_tmp.add(deeper)
-        
-        model_tmp.add(bn(num_channels_skip[i] + (num_channels_up[i + 1] if i < last_scale else num_channels_down[i])))
+       
+        if use_bn:
+            if not use_fc:
+                model_tmp.add(bn(num_channels_skip[i] + (num_channels_up[i + 1] if i < last_scale else num_channels_down[i])))
 
         if num_channels_skip[i] != 0:
-            skip.add(conv(input_depth, num_channels_skip[i], filter_skip_size, bias=need_bias, pad=pad))
-            skip.add(bn(num_channels_skip[i]))
+            if use_fc:
+                skip.add(Flatten())
+            else:
+                skip.add(conv(input_depth, num_channels_skip[i], filter_skip_size, bias=need_bias, pad=pad))
+            if use_bn:
+                skip.add(bn(num_channels_skip[i]))
             skip.add(act(act_fun))
             
-        # skip.add(Concat(2, GenNoise(nums_noise[i]), skip_part))
-
-        deeper.add(conv(input_depth, num_channels_down[i], filter_size_down[i], 2, bias=need_bias, pad=pad, downsample_mode=downsample_mode[i]))
-        deeper.add(bn(num_channels_down[i]))
+        if use_fc:
+            deeper.add(Flatten())
+            deeper.add(nn.Linear(input_size, num_channels_down[i]))
+        else:
+            deeper.add(conv(input_depth, num_channels_down[i], filter_size_down[i], stride, bias=need_bias, pad=pad, downsample_mode=downsample_mode[i]))
+        if use_bn:
+            if not use_fc:
+                deeper.add(bn(num_channels_down[i]))
         deeper.add(act(act_fun))
 
-        deeper.add(conv(num_channels_down[i], num_channels_down[i], filter_size_down[i], bias=need_bias, pad=pad))
-        deeper.add(bn(num_channels_down[i]))
+        if use_fc:
+            deeper.add(Flatten())
+            deeper.add(nn.Linear(num_channels_down[i], num_channels_down[i]))
+        else:
+            deeper.add(conv(num_channels_down[i], num_channels_down[i], filter_size_down[i], bias=need_bias, pad=pad))
+        if use_bn:
+            if not use_fc:
+                deeper.add(bn(num_channels_down[i]))
         deeper.add(act(act_fun))
 
         deeper_main = nn.Sequential()
@@ -79,24 +103,47 @@ def skip(
             deeper.add(deeper_main)
             k = num_channels_up[i + 1]
 
-        deeper.add(nn.Upsample(scale_factor=2, mode=upsample_mode[i]))
+        if stride > 1:
+            if not use_fc:
+                deeper.add(nn.Upsample(scale_factor=stride, mode=upsample_mode[i]))
 
-        model_tmp.add(conv(num_channels_skip[i] + k, num_channels_up[i], filter_size_up[i], 1, bias=need_bias, pad=pad))
-        model_tmp.add(bn(num_channels_up[i]))
+        if use_fc:
+            model_tmp.add(Flatten())
+            model_tmp.add(nn.Linear(num_channels_skip[i] + k, num_channels_up[i]))
+        else:
+            model_tmp.add(conv(num_channels_skip[i] + k, num_channels_up[i], filter_size_up[i], 1, bias=need_bias, pad=pad))
+        if use_bn:
+            if not use_fc:
+                model_tmp.add(bn(num_channels_up[i]))
         model_tmp.add(act(act_fun))
 
 
         if need1x1_up:
-            model_tmp.add(conv(num_channels_up[i], num_channels_up[i], 1, bias=need_bias, pad=pad))
-            model_tmp.add(bn(num_channels_up[i]))
+            if use_fc:
+                model_tmp.add(Flatten())
+                model_tmp.add(nn.Linear(num_channels_up[i], num_channels_up[i]))
+            else:
+                model_tmp.add(conv(num_channels_up[i], num_channels_up[i], 1, bias=need_bias, pad=pad))
+            if use_bn:
+                if not use_fc:
+                    model_tmp.add(bn(num_channels_up[i]))
             model_tmp.add(act(act_fun))
 
         input_depth = num_channels_down[i]
+        input_size = num_channels_down[i]
         model_tmp = deeper_main
 
-    model.add(conv(num_channels_up[0], num_output_channels, 1, bias=need_bias, pad=pad))
+    if use_fc:
+        model.add(Flatten())
+        model.add(nn.Linear(num_channels_up[0], img_size))
+    else:
+        model.add(conv(num_channels_up[0], num_output_channels, 1, bias=need_bias, pad=pad))
     if need_sigmoid:
         model.add(nn.Sigmoid())
 
+    if use_fc:
+        model.add(ReshapeToImg(input_shape))
+
     return model
+
 
