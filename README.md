@@ -2,7 +2,7 @@
 
 **Usage**
 
-Download images from Table 2 here: http://www.cs.tut.fi/~foi/GCF-BM3D/index.html Save these images in the folder data/
+Download images from Table 2 here: http://www.cs.tut.fi/~foi/GCF-BM3D/index.html Save these images in a folder called data/
 
 Generate noisy images:
     
