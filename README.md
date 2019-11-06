@@ -1,5 +1,7 @@
 # dip-spectral
 
+Code to reproduce results in "The Spectral Bias of the Deep Image Prior".
+
 **Usage**
 
 Download images from Table 2 here: http://www.cs.tut.fi/~foi/GCF-BM3D/index.html Save these images in a folder called data/
@@ -10,7 +12,9 @@ Generate noisy images:
     
 This will add different levels of noise to the images downsampled by the specified factors and save them in the data/ folder
 
-Run the following to denoise images with different architectures and reporoducing denoising results:
+**Denoising Results**
+
+Run the following to reporoduce denoising results with different architectures (Table 2 in the paper):
 
 1. DIP model (a convolutional encoder-decoder):
 
