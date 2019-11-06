@@ -73,6 +73,8 @@ def dip(noisy_img,
         optim.step()
         if (itr%traj_iter == 0):
             out_np = rec[0, :, :, :].transpose(0,2).detach().cpu().data.numpy()
+            if (num_ch == 1):
+                out_np = out_np[:,:,0]
             T.append(out_np)
             print('Iteration '+str(itr)+': '+str(loss.data))
     return T
@@ -84,7 +86,7 @@ def parse_args():
         '--noisy_img', required=True, help='Path to noisy image file'
     )
     parser.add_argument(
-        '--clean_img', required=True, help='Path to clean image file'
+        '--clean_img', default=None, help='Path to clean image file'
     )
     parser.add_argument(
         '--output_dir', default='outputs', help='Folder to save outputs'
@@ -130,11 +132,13 @@ if __name__ == '__main__':
 
     #load img and mask
     noisy_img = utils.imread(args.noisy_img)
-    clean_img = utils.imread(args.clean_img)
+    if not (args.clean_img is None):
+        clean_img = utils.imread(args.clean_img)
     output_dir = args.output_dir
     
     if len(noisy_img.shape) == 2:
         num_ch = 1
+        noisy_img = noisy_img[:,:,np.newaxis]
     else:
         num_ch = noisy_img.shape[-1]
 
@@ -160,26 +164,34 @@ if __name__ == '__main__':
     T1,T2 = traj_set
 
     # Find the best PSNR in the trajectory
-    clean_img = utils.imread(args.clean_img)
-    t1_psnr = [compare_psnr(clean_img,t1) for t1 in T1]
-    best_psnr = np.max(t1_psnr)
-    best_itr = np.argmax(t1_psnr)
-    best_psnr_pred = T1[best_itr]
-    print('Best PSNR: '+str(best_psnr))
+    if not (args.clean_img is None):
+        clean_img = utils.imread(args.clean_img)
+        t1_psnr = [compare_psnr(clean_img,t1) for t1 in T1]
+        best_psnr = np.max(t1_psnr)
+        best_itr = np.argmax(t1_psnr)
+        best_psnr_pred = T1[best_itr]
+        print('Best PSNR: '+str(best_psnr))
 
     # Show initial, best and final points on the trajectory
-    plt.imshow(T1[0])
+    if num_ch == 1:
+        plt.imshow(T1[0],cmap='gray')
+    else:
+        plt.imshow(T1[0])
     plt.title('Initial output')
     plt.savefig(os.path.join(output_dir,'init.png'))
     plt.close()
-    plt.imshow(T1[-1])
+    if num_ch == 1:
+        plt.imshow(T1[-1],cmap='gray')
+    else:
+        plt.imshow(T1[-1])
     plt.title('Final output')
     plt.savefig(os.path.join(output_dir,'final.png'))
     plt.close()
-    plt.imshow(best_psnr_pred)
-    plt.title('Best PSNR: '+str(best_psnr)+', Best Iter: '+str(best_itr*args.traj_iter))
-    plt.savefig(os.path.join(output_dir,'best_psnr.png'))
-    plt.close()
+    if not (args.clean_img is None):
+        plt.imshow(best_psnr_pred)
+        plt.title('Best PSNR: '+str(best_psnr)+', Best Iter: '+str(best_itr*args.traj_iter))
+        plt.savefig(os.path.join(output_dir,'best_psnr.png'))
+        plt.close()
     
     # Find trajectory intersection
     sse = []
