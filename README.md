@@ -12,9 +12,17 @@ Generate noisy images:
     
 This will add different levels of noise to the images downsampled by the specified factors and save them in the data/ folder
 
-**Denoising Results**
 
-Run the following to reporoduce denoising results with different architectures (Table 2 in the paper):
+**Trajectory Experiment**
+
+Run the following to reproduce the trajectory experiment (figure 1 in the paper)
+
+    python dip.py --noisy_img data/triangle/triangle-0.3.png --niter 1000 --traj_iter 10
+
+
+**Denoising Experiment**
+
+Run the following to reproduce the denoising results with different architectures (tables 1 and 2 in the paper):
 
 1. DIP model (a convolutional encoder-decoder):
 
