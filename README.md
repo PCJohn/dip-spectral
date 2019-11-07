@@ -37,15 +37,15 @@ Run the following to reproduce the denoising results with different architecture
 
         python relunet.py --noisy_img data/denoise-4/House256/House256_s25.png --clean_img data/denoise-4/House256/House256.png
     
-3. DIP-128:
+3. DIP Linear-128:
 
         python dip.py --linear --n_ch_up 128 --n_ch_down 128 --noisy_img data/denoise-4/House256/House256_s25.png --clean_img data/denoise-4/House256/House256.png
 
-4. DIP-2048:
+4. DIP Linear-2048:
         
         python dip.py --linear --n_ch_up 2048 --n_ch_down 2048 --noisy_img data/denoise-4/House256/House256_s25.png --clean_img data/denoise-4/House256/House256.png
     
 
-This runs DIP twice to generate 2 trajectories. The denoising results, along with convergence of the 2 trajectories will be saved in the outputs/ folder.
+This runs DIP twice to generate 2 trajectories. The denoising results, along with variation of distance between the 2 trajectories will be saved in the outputs/ folder.
     
     
