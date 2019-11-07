@@ -1,6 +1,6 @@
-# dip-spectral
+# The Spectral Bias of the Deep Image Prior
 
-Code to reproduce results in "The Spectral Bias of the Deep Image Prior".
+Code to reproduce results in the paper.
 
 
 **Usage**
@@ -18,7 +18,11 @@ This will add different levels of noise to the images downsampled by the specifi
 
 Run the following to reproduce the trajectory experiment (figure 1 in the paper)
 
-    python dip.py --noisy_img data/triangle/triangle-0.3.png --niter 1000 --traj_iter 10
+    # Less high frequency components
+    python dip.py --noisy_img data/triangle/triangle-0.2.png --niter 1000 --traj_iter 10
+
+    # More high frequency components
+    python dip.py --noisy_img data/triangle/triangle-0.9.png --niter 1000 --traj_iter 10
 
 
 **Denoising Experiment**
