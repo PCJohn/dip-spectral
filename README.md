@@ -1,6 +1,6 @@
 # The Spectral Bias of the Deep Image Prior
 
-Code to reproduce results in the paper.
+Code to reproduce results in the paper: http://bayesiandeeplearning.org/2019/papers/33.pdf
 
 
 **Dataset**
